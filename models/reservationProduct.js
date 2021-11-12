@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
-const reservation = require("./reservation");
+const Reservation = require("./reservation");
 
 var reservationProduct = new Schema({
   name: {
@@ -25,7 +25,7 @@ var reservationProduct = new Schema({
     type: Number,
     default: 60,
   },
-
+  // 0 sunday, 1 monday,2 tuesday,.... 6 saturday
   days: [
     {
       type: Number,
@@ -33,10 +33,12 @@ var reservationProduct = new Schema({
       max: 6,
     },
   ],
-  reservations: {
-    type: Schema.Types.ObjectId,
-    ref: "reservation",
-  },
+  reservations: [
+    {
+      type: Schema.Types.ObjectId,
+      ref: "reservation",
+    },
+  ],
 });
 
 module.exports = mongoose.model("reservationProduct", reservationProduct);
