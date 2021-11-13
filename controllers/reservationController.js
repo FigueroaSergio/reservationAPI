@@ -21,6 +21,7 @@ module.exports = {
       status: req.body.status,
     })
       .then((reservation) => {
+        console.log.apply(reservation);
         reservation.save();
       })
       .then((reservation) => {
@@ -28,7 +29,7 @@ module.exports = {
       });
   },
   delete: function (req, res, next) {
-    Reservation.findByIdAndDelete(req.params.id).then((product) => {
+    Reservation.findByIdAndDelete(req.params.id).then((reservation) => {
       res.status = 200;
       res.send({ status: "success" });
     });

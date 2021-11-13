@@ -1,14 +1,14 @@
-const reservationProduct = require("../models/reservationProduct");
+const Product = require("../models/product");
 const Reservation = require("../models/reservation");
 module.exports = {
   get: function (req, res, next) {
-    reservationProduct.find({}, (err, reservationRules) => {
+    Product.find({}, (err, product) => {
       if (err) res.send(err);
-      res.send(reservationRules);
+      res.send(product);
     });
   },
   post: function (req, res, next) {
-    product = new reservationProduct({
+    product = new Product({
       name: req.body.name,
       maxDays: req.body.maxDays,
       start: req.body.startMorning,
@@ -24,30 +24,33 @@ module.exports = {
     });
   },
   update: function (req, res, next) {
-    reservationProduct
-      .findByIdAndUpdate(req.params.id, {
-        name: req.body.name,
-        maxDays: req.body.maxDays,
-        start: req.body.startMorning,
-        finish: req.body.finishMorning,
-        duration: req.body.duration,
-        days: req.body.days,
+    Product.findByIdAndUpdate(req.params.id, {
+      name: req.body.name,
+      maxDays: req.body.maxDays,
+      start: req.body.startMorning,
+      finish: req.body.finishMorning,
+      duration: req.body.duration,
+      days: req.body.days,
+    })
+      .then((product) => {
+        product.save();
       })
-      .then((reservation) => {
-        reservation.save();
-      })
-      .then((reservation) => {
-        res.send(reservation);
+      .then((product) => {
+        res.send(product);
       })
       .catch((err) => {
         res.send(err);
       });
   },
-  delete: function (req, res, next) {
-    reservationProduct.findByIdAndDelete(req.params.id).then((product) => {
-      res.status = 200;
-      res.send({ status: "success" });
+  delete: async function (req, res, next) {
+    reservations = await Reservation.find({
+      product: req.params.id,
     });
+    for (let i in reservations) {
+      await Reservation.findByIdAndDelete(reservations[i]);
+    }
+    product = await Product.findByIdAndDelete(req.params.id);
+    res.send({ status: "success" });
   },
 };
 async function createReservations(p) {
@@ -70,7 +73,7 @@ async function createReservations(p) {
       while (newDate.getHours() < p.finish) {
         //console.log(newDate);
         //console.log(newDate.getHours());
-        let reservation = new Reservation({ date: newDate });
+        let reservation = new Reservation({ date: newDate, product: p._id });
         let reser = await reservation.save();
         newReser.push(reser.id);
 
@@ -87,9 +90,9 @@ async function createReservations(p) {
     // console.log(`${days}-${count}`);
   }
   //console.log(newReser);
-  reservationProduct
-    .findByIdAndUpdate(p._id, { reservations: newReser })
-    .then((product) => {
+  Product.findByIdAndUpdate(p._id, { reservations: newReser }).then(
+    (product) => {
       product.save();
-    });
+    }
+  );
 }

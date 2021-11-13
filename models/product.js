@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 const Reservation = require("./reservation");
 
-var reservationProduct = new Schema({
+var Product = new Schema({
   name: {
     type: String,
     required: true,
@@ -41,4 +41,4 @@ var reservationProduct = new Schema({
   ],
 });
 
-module.exports = mongoose.model("reservationProduct", reservationProduct);
+module.exports = mongoose.model("product", Product);

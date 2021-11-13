@@ -15,5 +15,9 @@ var reservation = new Schema({
     type: Schema.Types.ObjectId,
     ref: "client",
   },
+  product: {
+    type: Schema.Types.ObjectId,
+    ref: "product",
+  },
 });
 module.exports = mongoose.model("reservation", reservation);
