@@ -12,13 +12,13 @@ module.exports = {
     let product = new Product({
       name: req.body.name,
       maxDays: req.body.maxDays,
-      start: req.body.startMorning,
-      finish: req.body.finishMorning,
+      start: req.body.start,
+      finish: req.body.finish,
       duration: req.body.duration,
       days: req.body.days,
       reservations: [],
     });
-
+    console.log(product);
     product.save().then((product) => {
       res.send(product);
       createReservations(product);
@@ -28,8 +28,8 @@ module.exports = {
     Product.findByIdAndUpdate(req.params.id, {
       name: req.body.name,
       maxDays: req.body.maxDays,
-      start: req.body.startMorning,
-      finish: req.body.finishMorning,
+      start: req.body.start,
+      finish: req.body.finish,
       duration: req.body.duration,
       days: req.body.days,
     })
@@ -93,18 +93,10 @@ async function createReservations(p) {
   Product.findByIdAndUpdate(p._id, { reservations: newReser }).then(
     (product) => {
       product.save();
-      resetAtMidnight();
     }
   );
 }
-async function reset() {
-  let now = new Date();
-  let r = await Reservation.deleteMany({
-    date: { $lte: now },
-    status: "created",
-  });
-  console.log(r);
-}
+
 function resetAtMidnight() {
   let now = new Date();
   let night = new Date(
