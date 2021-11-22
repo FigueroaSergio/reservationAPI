@@ -1,9 +1,8 @@
 const Reservation = require("../models/reservation");
 module.exports = {
   get: function (req, res, next) {
-    Reservation.find({ status: "created" }, (err, reservation) => {
-      if (err) res.send(err);
-      res.send(reservation);
+    Reservation.find({ status: "created" }).then((reservations) => {
+      res.send(reservations);
     });
   },
   post: function (req, res, next) {

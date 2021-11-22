@@ -1,3 +1,4 @@
+const product = require("../models/product");
 const Product = require("../models/product");
 const Reservation = require("../models/reservation");
 module.exports = {
@@ -8,7 +9,7 @@ module.exports = {
     });
   },
   post: function (req, res, next) {
-    product = new Product({
+    let product = new Product({
       name: req.body.name,
       maxDays: req.body.maxDays,
       start: req.body.startMorning,
@@ -43,13 +44,12 @@ module.exports = {
       });
   },
   delete: async function (req, res, next) {
-    reservations = await Reservation.find({
-      product: req.params.id,
+    let product = await Product.findById(req.params.id);
+    let deleted = await Reservation.deleteMany({
+      _id: { $in: product.reservations },
+      status: "created",
     });
-    for (let i in reservations) {
-      await Reservation.findByIdAndDelete(reservations[i]);
-    }
-    product = await Product.findByIdAndDelete(req.params.id);
+    await Product.findByIdAndDelete(req.params.id);
     res.send({ status: "success" });
   },
 };
@@ -93,6 +93,34 @@ async function createReservations(p) {
   Product.findByIdAndUpdate(p._id, { reservations: newReser }).then(
     (product) => {
       product.save();
+      resetAtMidnight();
     }
   );
+}
+async function reset() {
+  let now = new Date();
+  let r = await Reservation.deleteMany({
+    date: { $lte: now },
+    status: "created",
+  });
+  console.log(r);
+}
+function resetAtMidnight() {
+  let now = new Date();
+  let night = new Date(
+    now.getFullYear(),
+    now.getMonth(),
+    now.getDate(),
+    now.getHours(), // the next hour, ...
+    now.getMinutes() + 10,
+    0 // ...at 00:00:00 hours
+  );
+  console.log(now);
+  console.log(night);
+  let msToMidnight = night.getTime() - now.getTime();
+
+  setTimeout(function () {
+    reset(); //      <-- This is the function being called at midnight.
+    resetAtMidnight(); //      Then, reset again next midnight.
+  }, msToMidnight);
 }
