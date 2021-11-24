@@ -5,7 +5,8 @@ var path = require("path");
 var cookieParser = require("cookie-parser");
 var logger = require("morgan");
 var mongoose = require("mongoose");
-
+var additions = require("./controllers/ProductController");
+additions.additions.resetAtMidnight();
 var indexRouter = require("./routes/index");
 var product = require("./routes/productRouter");
 var reservation = require("./routes/reservationRouter");
