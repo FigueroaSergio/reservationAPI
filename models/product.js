@@ -1,6 +1,5 @@
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
-const Reservation = require("./reservation");
 
 var Product = new Schema({
   name: {
@@ -33,6 +32,9 @@ var Product = new Schema({
       max: 6,
     },
   ],
+  lastDay: {
+    type: Date,
+  },
   reservations: [
     {
       type: Schema.Types.ObjectId,

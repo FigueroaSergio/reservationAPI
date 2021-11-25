@@ -1,5 +1,7 @@
 const Product = require("../models/product");
 const Reservation = require("../models/reservation");
+const resetTime = require("../models/resetTime");
+const restTime = require("../models/resetTime");
 
 api = {
   get: function (req, res, next) {
@@ -57,9 +59,11 @@ api = {
 };
 additions = {
   createReservations: async function (product, maxDays, date = new Date()) {
-    let count = 0;
-    let days = 0;
-    let newReser = [];
+    let count = 0,
+      days = 0;
+    let newReser = [],
+      oldRese = [];
+    let newlastDay = new Date();
     while (days < maxDays) {
       let newDate = new Date(
         date.getFullYear(),
@@ -72,7 +76,8 @@ additions = {
       // verify if the current day is on days available
       if (product.days.indexOf(newDate.getDay()) != -1) {
         // start to create the hours availables
-        while (newDate.getHours() < product.finish) {
+        let finish = product.finish;
+        while (newDate.getHours() < finish) {
           //console.log(newDate);
           //console.log(newDate.getHours());
           let reservation = new Reservation({
@@ -83,6 +88,7 @@ additions = {
           newReser.push(reser.id);
           // p.reservations.push(reservation._id);
           //increse de hours
+          newlastDay = reser.date;
           newDate.setMinutes(product.duration);
         }
       } else {
@@ -94,7 +100,7 @@ additions = {
       // console.log(`${days}-${count}`);
     }
     //console.log(newReser);
-    let oldRese = [];
+
     for (let i = 0; i < product.reservations.length; i++) {
       let reser = await Reservation.findById(product.reservations[i]);
       if (reser == null) {
@@ -104,6 +110,7 @@ additions = {
     //console.log(oldRese);
     let a = await Product.findByIdAndUpdate(product._id, {
       $pullAll: { reservations: oldRese },
+      lastDay: newlastDay,
     });
     //console.log(a);
     await a.save();
@@ -122,31 +129,55 @@ additions = {
   createNewReservations: async function () {
     let products = await Product.find({});
     await products.forEach((product) => {
-      let lastReservation = product.reservations.pop();
-      Reservation.findById(lastReservation).then((reservation) => {
-        let data = reservation.date;
-        data.setDate(data.getDate() + 1);
-        createReservations(product, 1, data);
-      });
+      let data = product.lastDay;
+      data.setDate(data.getDate() + 1);
+      this.createReservations(product, 1, data);
     });
   },
   resetAtMidnight: function () {
+    restTime.find({}).then((reset) => {
+      if (reset.length == 0) {
+        console.log("no hay reset");
+        let now = new Date();
+        let night = new Date(
+          now.getFullYear(),
+          now.getMonth(),
+          now.getDate() + 1, // the next day, ...
+          0,
+          0,
+          0 // ...at 00:00:00 hours
+        );
+        resetTime.create({ reset: night }).then((reset) => {
+          this.startReset(reset);
+        });
+      } else {
+        this.startReset(reset[0]);
+      }
+    });
+  },
+  startReset: function (reset) {
     let now = new Date();
-    let night = new Date(
-      now.getFullYear(),
-      now.getMonth(),
-      now.getDate() + 1, // the next day, ...
-      0,
-      0,
-      0 // ...at 00:00:00 hours
-    );
+    let night = reset.reset;
     console.log(now);
     console.log(night);
     let msToMidnight = night.getTime() - now.getTime();
-
+    if (msToMidnight < 0) msToMidnight = 100;
+    console.log(msToMidnight);
     setTimeout(function () {
-      createNewReservations(); //      <-- This is the function being called at midnight.
-      resetAtMidnight(); //      Then, reset again next midnight.
+      additions.createNewReservations(); //      <-- This is the function being called at midnight.
+      let newTime = new Date(
+        now.getFullYear(),
+        now.getMonth(),
+        now.getDate() + 1, // the next day, ...
+        0,
+        0,
+        0 // ...at 00:00:00 hours
+      );
+      resetTime
+        .findByIdAndUpdate(reset.id, { reset: newTime })
+        .then((reset) => {
+          additions.resetAtMidnight();
+        });
     }, msToMidnight);
   },
 };
