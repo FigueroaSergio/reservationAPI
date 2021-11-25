@@ -147,7 +147,7 @@ additions = {
           0,
           0 // ...at 00:00:00 hours
         );
-        resetTime.create({ reset: night }).then((reset) => {
+        resetTime.create({ reset: night, verificado: true }).then((reset) => {
           this.startReset(reset);
         });
       } else {
@@ -158,11 +158,11 @@ additions = {
   startReset: function (reset) {
     let now = new Date();
     let night = reset.reset;
-    console.log(now);
-    console.log(night);
+    //console.log(now);
+    // console.log(night);
     let msToMidnight = night.getTime() - now.getTime();
     if (msToMidnight < 0) msToMidnight = 100;
-    console.log(msToMidnight);
+    // console.log(msToMidnight);
     setTimeout(function () {
       additions.createNewReservations(); //      <-- This is the function being called at midnight.
       let newTime = new Date(

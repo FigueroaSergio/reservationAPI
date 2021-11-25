@@ -5,5 +5,9 @@ const Reset = new Schema({
     type: Date,
     require: true,
   },
+  verificado: {
+    type: Boolean,
+    default: false,
+  },
 });
 module.exports = mongoose.model("reset", Reset);
