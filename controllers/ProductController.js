@@ -23,7 +23,7 @@ api = {
     //console.log(product);
     product.save().then((product) => {
       additions.createReservations(product, product.maxDays).then((product) => {
-        console.log(product);
+        //console.log(product);
         res.send(product);
       });
     });
