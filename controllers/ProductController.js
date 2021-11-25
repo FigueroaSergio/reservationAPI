@@ -69,14 +69,14 @@ additions = {
         date.getFullYear(),
         date.getMonth(),
         date.getDate() + count,
-        product.start
+        product.start - 1
       );
       // console.log(newDate.getDate());
 
       // verify if the current day is on days available
       if (product.days.indexOf(newDate.getDay()) != -1) {
         // start to create the hours availables
-        let finish = product.finish;
+        let finish = product.finish - 1;
         while (newDate.getHours() < finish) {
           //console.log(newDate);
           //console.log(newDate.getHours());
@@ -142,7 +142,7 @@ additions = {
         let night = new Date(
           now.getFullYear(),
           now.getMonth(),
-          now.getDate() + 1, // the next day, ...
+          now.getDate(), // the next day, ...
           0,
           0,
           0 // ...at 00:00:00 hours
