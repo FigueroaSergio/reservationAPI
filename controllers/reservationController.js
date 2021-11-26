@@ -70,15 +70,14 @@ module.exports = {
               email: email,
               reservations: reservations,
             });
-            sengrid(resers, newtoken);
+            sengrid(resers, newtoken, true);
             res.json({
               info: "We send you a message to confirm the reservations",
             });
           }
         })
         .catch((err) => {
-          let error = new Error("Impossible to parse Id");
-          next(error);
+          next(err);
         });
     }
   },
