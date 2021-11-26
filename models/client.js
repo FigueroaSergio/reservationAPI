@@ -10,9 +10,12 @@ var client = new Schema({
     type: String,
     required: true,
   },
-  reservations: {
-    type: Schema.Types.ObjectId,
-    ref: "reservation",
-  },
+  reservations: [
+    {
+      type: Schema.Types.ObjectId,
+      ref: "reservation",
+      unique: true,
+    },
+  ],
 });
 module.exports = mongoose.model("client", client);

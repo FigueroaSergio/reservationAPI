@@ -1,6 +1,5 @@
 require("dotenv").config();
 const passport = require("passport");
-const verifyUser = require("./utils/auth").verifyUser;
 
 var createError = require("http-errors");
 var express = require("express");
@@ -8,15 +7,12 @@ var path = require("path");
 var cookieParser = require("cookie-parser");
 var logger = require("morgan");
 var mongoose = require("mongoose");
-var additions = require("./controllers/ProductController");
+var additions = require("./utils/resetAndCreate");
 
 var indexRouter = require("./routes/index");
-var product = require("./routes/productRouter");
-var reservation = require("./routes/reservationRouter");
-var token = require("./routes/tokenRouter");
-var auth = require("./routes/authRouter");
+var api = require("./routes/api");
 
-additions.additions.resetAtMidnight();
+additions.resetAtMidnight();
 mongoose.connect(process.env.MONGO_URI);
 var app = express();
 // view engine setup
@@ -30,10 +26,8 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
 
 app.use("/", indexRouter);
-app.use("/entry", auth);
-app.use("/products", verifyUser, product);
-app.use("/reservations", verifyUser, reservation);
-app.use("/token", verifyUser, token);
+app.use("/api", api);
+
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
   next(createError(404));
